@@ -1,0 +1,54 @@
+{
+    "name": "InputEnters",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "9f047272-04aa-4596-a274-e100bf8f98a2",
+            "actions": [
+                {
+                    "name": "Move",
+                    "type": "Value",
+                    "id": "73231977-fc44-4393-a665-d0b3d19f6e90",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "RotateCam",
+                    "type": "Value",
+                    "id": "c768d68e-583a-4155-b9a3-5e22acc17d03",
+                    "expectedControlType": "Vector2",
+                    "processors": "DeltaTime",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "b32d3106-05f1-4163-a24e-db9bc798536b",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c48fe6c7-bab8-42c3-9247-df7cdac72bfa",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RotateCam",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
