@@ -5,16 +5,16 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638568745000015504
-    m_Hash: 1771791688
+      ticks: 638584020730490889
+    m_Hash: 3615801496
   m_LockFileStatus:
     m_FilePath: A:/Faculdade/Desenvolvimento de Jogo Mobile/Jogo-Mobile/My project/Packages/packages-lock.json
     m_PathExists: 1
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 638568745000374588
-    m_Hash: 2357867993
+      ticks: 638584020730500899
+    m_Hash: 575399596
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
 m_LocalPackages:
@@ -422,6 +422,7 @@ m_ResolvedPackages:
     - 2.2.0
     - 2.3.1
     - 2.4.3
+    - 2.4.4
     compatible:
     - 2.0.5
     - 2.0.7
@@ -432,6 +433,7 @@ m_ResolvedPackages:
     - 2.2.0
     - 2.3.1
     - 2.4.3
+    - 2.4.4
     recommended: 2.0.7
     deprecated: []
   dependencies: []
@@ -883,6 +885,7 @@ m_ResolvedPackages:
     - 1.8.1
     - 1.8.2
     - 1.9.0
+    - 1.10.0
     compatible:
     - 1.6.1
     - 1.6.3
@@ -893,6 +896,7 @@ m_ResolvedPackages:
     - 1.8.1
     - 1.8.2
     - 1.9.0
+    - 1.10.0
     recommended: 1.6.3
     deprecated: []
   dependencies:
@@ -1010,6 +1014,7 @@ m_ResolvedPackages:
     - 1.4.2
     - 1.4.3
     - 1.4.4
+    - 1.4.5
     - 2.0.1-exp.1
     - 2.0.1-exp.2
     - 2.0.1-pre.12
@@ -1030,6 +1035,7 @@ m_ResolvedPackages:
     - 1.4.2
     - 1.4.3
     - 1.4.4
+    - 1.4.5
     - 2.0.1-exp.1
     - 2.0.1-exp.2
     - 2.0.1-pre.12

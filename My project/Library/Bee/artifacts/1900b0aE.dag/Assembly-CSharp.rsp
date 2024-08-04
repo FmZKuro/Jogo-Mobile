@@ -370,6 +370,8 @@
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEngine.UI.ref.dll"
 -analyzer:"A:/Faculdade/Programas/Unity Hub/2022.3.4f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll"
 -analyzer:"A:/Faculdade/Programas/Unity Hub/2022.3.4f1/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
+"Assets/Enemy/Scripts/EnemyMoviment.cs"
+"Assets/Enemy/Scripts/LookAtPlayer.cs"
 "Assets/Player/Scripts/DeltaTimeProcessor.cs"
 "Assets/Player/Scripts/InputEnters.cs"
 "Assets/Player/Scripts/MovimentPlayer.cs"
