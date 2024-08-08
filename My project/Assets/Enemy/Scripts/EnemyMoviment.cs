@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EnemyMoviment : MonoBehaviour
+public class EnemyMoviment : MonoBehaviour, Interactable
 {
+    [SerializeField] private Dialog dialog;
+
     private int HP = 100;
     private int maxHP = 100;
     public Slider healthBar;
     public int damageAmount = 10;
+
+    public void Interact()
+    {
+        StartCoroutine(DialogManager.Instance.ShowDialog(dialog));
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -26,6 +33,13 @@ public class EnemyMoviment : MonoBehaviour
         {
             TakeDamage(damageAmount);
         }
+
+        if (Input.GetKeyDown(KeyCode.Z) && !DialogManager.Instance.dialogBox.activeInHierarchy)
+        {
+            StartCoroutine(DialogManager.Instance.ShowDialog(dialog));
+        }
+
+        DialogManager.Instance.HandleUpdate();
     }
 
     private void TakeDamage(int damage)
