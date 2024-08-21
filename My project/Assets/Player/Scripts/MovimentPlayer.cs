@@ -30,29 +30,32 @@ public class MovimentPlayer : MonoBehaviour
         playerCam = Camera.main.transform;
 
         // Adiciona o método de Jump ao botão de pulo
-        jumpButton.onClick.AddListener(Jump);
+        jumpButton.onClick.AddListener(TryJump);
 
         // Adiciona o método de Ataque ao botão de ataque
-        jumpButton.onClick.AddListener(Attack);
+        attackButton.onClick.AddListener(TryAttack);
     }
 
     // Método para mover o Player, chamado pelo sistema de entrada
     public void MovePlayer(InputAction.CallbackContext value)
     {
         // Lê o valor da entrada do Player
-        playerInput = value.ReadValue<Vector2>();               
+        playerInput = value.ReadValue<Vector2>();
     }
     private void Update()
     {
         // Verifica se o Player está no chão
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        animator.SetBool("isGrounded", isGrounded);             
+        animator.SetBool("isGrounded", isGrounded);
 
         // Se o Player está no chão e a velocidade vertical é menor que 0, redefine a velocidade vertical
         if (isGrounded && velocityJump.y < 0)
         {
             velocityJump.y = -2f;
             animator.SetBool("isJumping", false);
+
+            // Habilita o botão de pulo novamente ao tocar o chão
+            jumpButton.interactable = true;
         }
 
         // Rotaciona o Player de acordo com a entrada do Player
@@ -86,20 +89,67 @@ public class MovimentPlayer : MonoBehaviour
         }
     }
 
+    // Método para tentar realizar o pulo
+    private void TryJump()
+    {
+        if (isGrounded && !animator.GetBool("isJumping"))
+        {
+            Jump();
+        }
+    }
+
     // Método chamado ao pressionar o botão de Jump
     private void Jump()
     {
         // Se o Player está no chão, aplica a força de pulo
-        if (isGrounded)
+        velocityJump.y = Mathf.Sqrt(jumpForce * -2f * gravity);
+        animator.SetBool("isJumping", true);
+
+        // Desabilita o botão de pulo após o pulo
+        jumpButton.interactable = false;
+
+        // Inicia uma coroutine para reabilitar o botão de pulo após tocar o chão
+        StartCoroutine(ReenableJumpButton());
+    }
+
+    private IEnumerator ReenableJumpButton()
+    {
+        // Espera até que o jogador toque o chão novamente
+        while (!isGrounded)
         {
-            velocityJump.y = Mathf.Sqrt(jumpForce * -2f * gravity);
-            animator.SetBool("isJumping", true);
+            yield return null;
         }
+
+        // Reabilita o botão de pulo
+        jumpButton.interactable = true;
+    }
+
+    // Método para tentar realizar o ataque
+    private void TryAttack()
+    {
+        if (animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack"))
+            return; // Evita que o jogador ataque novamente enquanto uma animação de ataque está ocorrendo
+
+        Attack();
     }
 
     private void Attack()
     {
         // Define o trigger de atacar no animator
-        animator.SetTrigger("attack");
+        animator.SetTrigger("Attack");
+
+        attackButton.interactable = false;
+
+        // Inicia uma coroutine para reabilitar o botão de ataque após a animação
+        StartCoroutine(ReenableAttackButton());
+    }
+
+    private IEnumerator ReenableAttackButton()
+    {
+        // Espera até que a animação de ataque termine
+        yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+
+        // Reabilita o botão de ataque
+        attackButton.interactable = true;
     }
 }
