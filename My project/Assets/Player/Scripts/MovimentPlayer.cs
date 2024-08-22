@@ -9,8 +9,8 @@ public class MovimentPlayer : MonoBehaviour
     [SerializeField] private float velocity = 4;                // Velocidade de movimento
     [SerializeField] private float jumpForce = 1f;              // Força do pulo
     [SerializeField] private float gravity = -20f;              // Gravidade aplicada ao Player
-    [SerializeField] private Button jumpButton;                 // Botão de pulo
     [SerializeField] private Button attackButton;               // Botão de ataque
+    [SerializeField] private Button jumpButton;                 // Botão de pulo
     [SerializeField] private Transform groundCheck;             // Transform para verificar se o Player está no chão
     [SerializeField] private float groundDistance = 0.4f;       // Distância para verificar o chão
     [SerializeField] private LayerMask groundMask;              // Camada do chão para verificar colisão
@@ -21,6 +21,8 @@ public class MovimentPlayer : MonoBehaviour
     private Animator animator;                                  // Componente de Animação do Player
     private Vector3 velocityJump;                               // Velocidade vertical do Jump
     private bool isGrounded;                                    // Flag para verificar se o Player está no chão
+    private bool isAttacking = false;                           // Flag para verificar se o Player está atacando
+
 
     private void Awake()
     {
@@ -29,18 +31,22 @@ public class MovimentPlayer : MonoBehaviour
         animator = GetComponent<Animator>();
         playerCam = Camera.main.transform;
 
-        // Adiciona o método de Jump ao botão de pulo
+        // Adiciona os método de Jump e Ataque aos botões
         jumpButton.onClick.AddListener(TryJump);
-
-        // Adiciona o método de Ataque ao botão de ataque
         attackButton.onClick.AddListener(TryAttack);
     }
 
     // Método para mover o Player, chamado pelo sistema de entrada
     public void MovePlayer(InputAction.CallbackContext value)
-    {
-        // Lê o valor da entrada do Player
-        playerInput = value.ReadValue<Vector2>();
+    {        
+        if (!isAttacking)                                       // Se o Player não estiver atacando, ele pode se mover
+        {            
+            playerInput = value.ReadValue<Vector2>();           // Lê o valor da entrada do Player
+        }
+        else
+        {            
+            playerInput = Vector2.zero;                         // Zera o input para impedir o movimento durante o ataque
+        }
     }
     private void Update()
     {
@@ -48,28 +54,31 @@ public class MovimentPlayer : MonoBehaviour
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
         animator.SetBool("isGrounded", isGrounded);
 
-        // Se o Player está no chão e a velocidade vertical é menor que 0, redefine a velocidade vertical
+        // Reseta a velocidade vertical se estiver no chão e a velocidade vertical for negativa
         if (isGrounded && velocityJump.y < 0)
         {
             velocityJump.y = -2f;
             animator.SetBool("isJumping", false);
 
-            // Habilita o botão de pulo novamente ao tocar o chão
-            jumpButton.interactable = true;
+            // Reabilita o botão de pulo se o Player não estiver atacando
+            if (!isAttacking)
+            {
+                jumpButton.interactable = true;
+            }
         }
 
         // Rotaciona o Player de acordo com a entrada do Player
         RotatePlayer();
 
-        // Calcula o movimento do Player e aplica usando o CharacterController
+        // Movimenta o Player usando o CharacterController
         Vector3 move = transform.forward * playerInput.magnitude * velocity * Time.deltaTime;
         characterController.Move(move);
 
-        // Aplica a gravidade na velocidade vertical e move o Player verticalmente
+        // Aplica gravidade ao Player
         velocityJump.y += gravity * Time.deltaTime;
         characterController.Move(velocityJump * Time.deltaTime);
 
-        // Define a animação de caminhar se o Player está se movendo
+        // Define a animação de caminhar
         animator.SetBool("Walk", playerInput != Vector2.zero);
     }
 
@@ -92,7 +101,8 @@ public class MovimentPlayer : MonoBehaviour
     // Método para tentar realizar o pulo
     private void TryJump()
     {
-        if (isGrounded && !animator.GetBool("isJumping"))
+        // Verifica se o Player pode pular (está no chão, não está pulando e não está atacando)
+        if (isGrounded && !animator.GetBool("isJumping") && !isAttacking)
         {
             Jump();
         }
@@ -103,53 +113,54 @@ public class MovimentPlayer : MonoBehaviour
     {
         // Se o Player está no chão, aplica a força de pulo
         velocityJump.y = Mathf.Sqrt(jumpForce * -2f * gravity);
-        animator.SetBool("isJumping", true);
-
-        // Desabilita o botão de pulo após o pulo
-        jumpButton.interactable = false;
-
-        // Inicia uma coroutine para reabilitar o botão de pulo após tocar o chão
-        StartCoroutine(ReenableJumpButton());
+        animator.SetBool("isJumping", true);                   // Define a animação de Pulo                
+        jumpButton.interactable = false;                       // Desabilita o botão de pulo após o pulo        
+        StartCoroutine(ReenableJumpButton());                  // Inicia uma coroutine para reabilitar o botão de pulo após tocar o chão
     }
 
     private IEnumerator ReenableJumpButton()
     {
-        // Espera até que o jogador toque o chão novamente
+        // Espera até que o Player toque o chão novamente
         while (!isGrounded)
         {
             yield return null;
-        }
+        }        
 
-        // Reabilita o botão de pulo
-        jumpButton.interactable = true;
+        jumpButton.interactable = true;                        // Reabilita o botão de pulo
     }
 
     // Método para tentar realizar o ataque
     private void TryAttack()
     {
+        // Impede o ataque se uma animação de ataque já estiver sendo executada
         if (animator.GetCurrentAnimatorStateInfo(0).IsTag("Attack"))
-            return; // Evita que o jogador ataque novamente enquanto uma animação de ataque está ocorrendo
+            return;
 
         Attack();
     }
 
+    // Método chamado ao pressionar o botão de Ataque
     private void Attack()
-    {
-        // Define o trigger de atacar no animator
-        animator.SetTrigger("Attack");
+    {        
+        animator.SetTrigger("Attack");                         // Define o trigger de atacar no animator
 
-        attackButton.interactable = false;
-
-        // Inicia uma coroutine para reabilitar o botão de ataque após a animação
-        StartCoroutine(ReenableAttackButton());
+        attackButton.interactable = false;                     // Desabilita o botão de Ataque
+        jumpButton.interactable = false;                       // Desabilita o botão de  Pulo
+        
+        isAttacking = true;                                    // Sinaliza que o Player está atacando
+        
+        StartCoroutine(ReenableAttackButton());                // Inicia uma coroutine para reabilitar o botão de ataque após a animação
     }
 
+    // Coroutine para reabilitar o botão de ataque após o término da animação
     private IEnumerator ReenableAttackButton()
     {
         // Espera até que a animação de ataque termine
         yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
 
-        // Reabilita o botão de ataque
-        attackButton.interactable = true;
+        attackButton.interactable = true;                      // Reabilita o botão de Ataque
+        jumpButton.interactable = true;                        // Reabilita o botão de Pulo
+                
+        isAttacking = false;                                   // Sinaliza que o Player terminou o ataque
     }
 }

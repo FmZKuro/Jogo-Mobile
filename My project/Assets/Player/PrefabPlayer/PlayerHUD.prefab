@@ -35,7 +35,7 @@ Transform:
   - {fileID: 5698828161306651693}
   - {fileID: 6452888129245726812}
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &3531939213215933963
 PrefabInstance:
@@ -511,6 +511,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6155983396663481228}
     m_Modifications:
+    - target: {fileID: -914593552808956496, guid: 7b9804636a23b3342abeafbc8169a200,
+        type: 3}
+      propertyPath: m_BindingMode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: -914593552808956496, guid: 7b9804636a23b3342abeafbc8169a200,
+        type: 3}
+      propertyPath: m_FollowOffset.y
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -914593552808956496, guid: 7b9804636a23b3342abeafbc8169a200,
+        type: 3}
+      propertyPath: m_FollowOffset.z
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: -914593552808956496, guid: 7b9804636a23b3342abeafbc8169a200,
+        type: 3}
+      propertyPath: m_Heading.m_Definition
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 141185104836133928, guid: 7b9804636a23b3342abeafbc8169a200,
         type: 3}
       propertyPath: m_LocalRotation.w
@@ -596,6 +616,26 @@ PrefabInstance:
       propertyPath: m_Orbits.Array.data[2].m_Radius
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 2480860382813624664, guid: 7b9804636a23b3342abeafbc8169a200,
+        type: 3}
+      propertyPath: m_BindingMode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2480860382813624664, guid: 7b9804636a23b3342abeafbc8169a200,
+        type: 3}
+      propertyPath: m_FollowOffset.y
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2480860382813624664, guid: 7b9804636a23b3342abeafbc8169a200,
+        type: 3}
+      propertyPath: m_FollowOffset.z
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2480860382813624664, guid: 7b9804636a23b3342abeafbc8169a200,
+        type: 3}
+      propertyPath: m_Heading.m_Definition
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 4411263265189621278, guid: 7b9804636a23b3342abeafbc8169a200,
         type: 3}
       propertyPath: m_LocalRotation.w
@@ -675,6 +715,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Cam FreeLook
+      objectReference: {fileID: 0}
+    - target: {fileID: 7943825442017723612, guid: 7b9804636a23b3342abeafbc8169a200,
+        type: 3}
+      propertyPath: m_BindingMode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7943825442017723612, guid: 7b9804636a23b3342abeafbc8169a200,
+        type: 3}
+      propertyPath: m_FollowOffset.y
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7943825442017723612, guid: 7b9804636a23b3342abeafbc8169a200,
+        type: 3}
+      propertyPath: m_FollowOffset.z
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7943825442017723612, guid: 7b9804636a23b3342abeafbc8169a200,
+        type: 3}
+      propertyPath: m_Heading.m_Definition
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8236317605951164473, guid: 7b9804636a23b3342abeafbc8169a200,
         type: 3}
