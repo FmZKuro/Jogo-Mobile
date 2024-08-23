@@ -5893,7 +5893,7 @@ Transform:
   - {fileID: 7981761775983110215}
   - {fileID: 4035405225996567746}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &8707354236279276829
 Animator:
@@ -5936,7 +5936,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 2
-  m_Radius: 0.25
+  m_Radius: 0.41
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.0001
@@ -6008,8 +6008,8 @@ MonoBehaviour:
   velocity: 5
   jumpForce: 1
   gravity: -20
-  jumpButton: {fileID: 0}
   attackButton: {fileID: 0}
+  jumpButton: {fileID: 0}
   groundCheck: {fileID: 4035405225996567746}
   groundDistance: 0.4
   groundMask:

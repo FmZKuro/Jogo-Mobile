@@ -7,7 +7,6 @@ public class PlayerHealth : MonoBehaviour
 {
     public Image healthImage;                               // Referência de imagem que representa a Vida do Player
     public float maxHealth = 100f;                          // Valor máximo de Vida do Player
-    public GameObject playerHUD;                            // Referência ao GameObject "PlayerHUD"
 
     private float currentHealth;                            // Valor atual de Vida do Player
     private Animator animator;                              // Referência ao componente Animator
