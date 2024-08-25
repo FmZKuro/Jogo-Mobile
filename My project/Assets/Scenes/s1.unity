@@ -2308,6 +2308,12 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 616958357}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &654061374 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2568088213924199208, guid: 60579886ce4aab44e8715aa7710469a6,
+    type: 3}
+  m_PrefabInstance: {fileID: 1705354868}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &678122043
 GameObject:
   m_ObjectHideFlags: 0
@@ -3379,7 +3385,7 @@ PrefabInstance:
     - target: {fileID: 1333173824509341227, guid: dbc082399eb0a004aa2798db6deae416,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: -1e-45
       objectReference: {fileID: 0}
     - target: {fileID: 2046853540282993189, guid: dbc082399eb0a004aa2798db6deae416,
         type: 3}
@@ -3409,17 +3415,17 @@ PrefabInstance:
     - target: {fileID: 3333227825807524893, guid: dbc082399eb0a004aa2798db6deae416,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.30604532
+      value: 0.30604535
       objectReference: {fileID: 0}
     - target: {fileID: 3333227825807524893, guid: dbc082399eb0a004aa2798db6deae416,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.00000004012451
+      value: 1.5864809e-15
       objectReference: {fileID: 0}
     - target: {fileID: 3333227825807524893, guid: dbc082399eb0a004aa2798db6deae416,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.0000000128988455
+      value: -1.2109814e-15
       objectReference: {fileID: 0}
     - target: {fileID: 3607529969820552933, guid: dbc082399eb0a004aa2798db6deae416,
         type: 3}
@@ -6729,6 +6735,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 437594536364618069, guid: 60579886ce4aab44e8715aa7710469a6,
         type: 3}
+      propertyPath: sword
+      value: 
+      objectReference: {fileID: 654061374}
+    - target: {fileID: 437594536364618069, guid: 60579886ce4aab44e8715aa7710469a6,
+        type: 3}
       propertyPath: jumpButton
       value: 
       objectReference: {fileID: 850618950}
@@ -6737,6 +6748,16 @@ PrefabInstance:
       propertyPath: attackButton
       value: 
       objectReference: {fileID: 850618949}
+    - target: {fileID: 2203720660873680519, guid: 60579886ce4aab44e8715aa7710469a6,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2204165499161591815, guid: 60579886ce4aab44e8715aa7710469a6,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2600601486477759893, guid: 60579886ce4aab44e8715aa7710469a6,
         type: 3}
       propertyPath: healthImage

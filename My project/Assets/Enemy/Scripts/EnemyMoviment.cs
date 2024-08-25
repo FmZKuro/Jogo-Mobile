@@ -5,13 +5,16 @@ using UnityEngine.UI;
 
 public class EnemyMoviment : MonoBehaviour, Interactable
 {
-    [SerializeField] private Dialog dialog;                                 // Declara uma variável privada do tipo Dialog para acesso no editor
-
+    [Header("Enemy Movement Settings")]
     [SerializeField] private int HP = 100;                                  // Declara uma variável privada para representar a vida atual no editor
     [SerializeField] private int maxHP = 100;                               // Declara uma variável privada para representar a vida máxima no editor
-    [SerializeField] private int damageAmount = 10;                         // Declara uma variável privada para representar quanto dano sofrido no editor
 
-    public Slider healthBar;                                                // Declara uma variável para representar a barra de vida do enemy
+    [Header("Enemy UI Settings")]
+    [SerializeField] private Slider healthBar;                              // Declara uma variável para representar a barra de vida do enemy
+
+    [Header("Enemy Dialog Settings")]
+    [SerializeField] private Dialog dialog;                                 // Declara uma variável privada do tipo Dialog para acesso no editor
+
     private Animator animator;                                              // Declara uma variável privada para representar o componente Animator
     private bool isDead = false;                                            // Declara uma variável booleana para representar se o Enemy está morto
 
@@ -38,11 +41,6 @@ public class EnemyMoviment : MonoBehaviour, Interactable
         if (isDead) return;                                                 // Se estiver morto, não faça mais nada
         healthBar.value = HP;                                               // Atualiza o valor da barra de vida com o valor atual do HP
 
-        if (Input.GetKeyDown(KeyCode.Q))                                    // Teste para verificar se a tecla "Q" foi pressionada para causar dano ao Enemy
-        {
-            TakeDamage(damageAmount);                                       // Aplica dano ao Enemy chamando o método TakeDamage
-        }
-
         // Verifica se a tecla "Z" foi pressionada e se a caixa de diálogo não está ativa
         if (Input.GetKeyDown(KeyCode.Z) && !DialogManager.Instance.dialogBox.activeInHierarchy)
         {
@@ -52,7 +50,24 @@ public class EnemyMoviment : MonoBehaviour, Interactable
         DialogManager.Instance.HandleUpdate();                              // Chama o método HandleUpdate do DialogManager para atualizar o estado do diálogo
     }
 
-    private void TakeDamage(int damage)
+    private void OnTriggerEnter(Collider other)
+    {
+        if (isDead) return;                                                 // Se estiver morto, ignora a colisão
+
+        // Verifica se o inimigo colidiu com o colisor da espada
+        if (other.CompareTag("Sword"))
+        {
+            // Obtém o dano da espada a partir do script do Player
+            MovimentPlayer player = other.GetComponentInParent<MovimentPlayer>();
+            if (player != null)
+            {
+                int swordDamage = player.GetSwordDamage();                  // Obtém o valor do dano da espada
+                TakeDamage(swordDamage);                                    // Aplica dano ao inimigo com base no dano da espada
+            }
+        }
+    }
+
+    public void TakeDamage(int damage)
     {
         if (isDead) return;                                                 // Se estiver morto, não faça mais nada
         HP -= damage;                                                       // Reduz o HP do personagem com base na quantidade de dano recebido

@@ -8,7 +8,7 @@ public class PlayerHealth : MonoBehaviour
     public Image healthImage;                               // Referência de imagem que representa a Vida do Player
     public float maxHealth = 100f;                          // Valor máximo de Vida do Player
 
-    private float currentHealth;                            // Valor atual de Vida do Player
+    [SerializeField] private float currentHealth;           // Valor atual de Vida do Player
     private Animator animator;                              // Referência ao componente Animator
     private bool isDead;                                    // Flag para verificar se o Player está morto
 

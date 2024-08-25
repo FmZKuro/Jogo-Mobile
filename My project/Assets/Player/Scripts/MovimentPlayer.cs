@@ -6,14 +6,24 @@ using UnityEngine.UI;
 
 public class MovimentPlayer : MonoBehaviour
 {
+    [Header("Player Movement Settings")]
     [SerializeField] private float velocity = 4;                // Velocidade de movimento
     [SerializeField] private float jumpForce = 1f;              // Força do pulo
     [SerializeField] private float gravity = -20f;              // Gravidade aplicada ao Player
+
+    [Header("UI Controls")]
     [SerializeField] private Button attackButton;               // Botão de ataque
     [SerializeField] private Button jumpButton;                 // Botão de pulo
+
+    [Header("Ground Check Settings")]
     [SerializeField] private Transform groundCheck;             // Transform para verificar se o Player está no chão
     [SerializeField] private float groundDistance = 0.4f;       // Distância para verificar o chão
     [SerializeField] private LayerMask groundMask;              // Camada do chão para verificar colisão
+
+    [Header("Sword Settings")]
+    [SerializeField] private GameObject sword;                  // Referência ao objeto da espada    
+    [SerializeField] private int swordDamage = 10;              // Dano causado pela espada
+    private BoxCollider swordCollider;                          // Referência ao Box Collider da espada
 
     private Vector2 playerInput;                                // Entrada de movimento do Player
     private CharacterController characterController;            // Componente de controle do Player
@@ -30,21 +40,25 @@ public class MovimentPlayer : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
         playerCam = Camera.main.transform;
+        swordCollider = sword.GetComponent<BoxCollider>();
 
         // Adiciona os método de Jump e Ataque aos botões
         jumpButton.onClick.AddListener(TryJump);
         attackButton.onClick.AddListener(TryAttack);
+
+        sword.SetActive(true);                                  // Garante que a espada esteja ativa
+        swordCollider.enabled = false;                          // Desabilita o collider da espada inicialmente
     }
 
     // Método para mover o Player, chamado pelo sistema de entrada
     public void MovePlayer(InputAction.CallbackContext value)
-    {        
+    {
         if (!isAttacking)                                       // Se o Player não estiver atacando, ele pode se mover
-        {            
+        {
             playerInput = value.ReadValue<Vector2>();           // Lê o valor da entrada do Player
         }
         else
-        {            
+        {
             playerInput = Vector2.zero;                         // Zera o input para impedir o movimento durante o ataque
         }
     }
@@ -113,9 +127,9 @@ public class MovimentPlayer : MonoBehaviour
     {
         // Se o Player está no chão, aplica a força de pulo
         velocityJump.y = Mathf.Sqrt(jumpForce * -2f * gravity);
-        animator.SetBool("isJumping", true);                   // Define a animação de Pulo                
-        jumpButton.interactable = false;                       // Desabilita o botão de pulo após o pulo        
-        StartCoroutine(ReenableJumpButton());                  // Inicia uma coroutine para reabilitar o botão de pulo após tocar o chão
+        animator.SetBool("isJumping", true);                    // Define a animação de Pulo                
+        jumpButton.interactable = false;                        // Desabilita o botão de pulo após o pulo        
+        StartCoroutine(ReenableJumpButton());                   // Inicia uma coroutine para reabilitar o botão de pulo após tocar o chão
     }
 
     private IEnumerator ReenableJumpButton()
@@ -124,9 +138,9 @@ public class MovimentPlayer : MonoBehaviour
         while (!isGrounded)
         {
             yield return null;
-        }        
+        }
 
-        jumpButton.interactable = true;                        // Reabilita o botão de pulo
+        jumpButton.interactable = true;                         // Reabilita o botão de pulo
     }
 
     // Método para tentar realizar o ataque
@@ -141,15 +155,16 @@ public class MovimentPlayer : MonoBehaviour
 
     // Método chamado ao pressionar o botão de Ataque
     private void Attack()
-    {        
-        animator.SetTrigger("Attack");                         // Define o trigger de atacar no animator
+    {
+        animator.SetTrigger("Attack");                          // Define o trigger de atacar no animator
 
-        attackButton.interactable = false;                     // Desabilita o botão de Ataque
-        jumpButton.interactable = false;                       // Desabilita o botão de  Pulo
-        
-        isAttacking = true;                                    // Sinaliza que o Player está atacando
-        
-        StartCoroutine(ReenableAttackButton());                // Inicia uma coroutine para reabilitar o botão de ataque após a animação
+        attackButton.interactable = false;                      // Desabilita o botão de Ataque
+        jumpButton.interactable = false;                        // Desabilita o botão de  Pulo
+
+        isAttacking = true;                                     // Sinaliza que o Player está atacando
+        swordCollider.enabled = true;                           // Habilita o collider da espada
+
+        StartCoroutine(ReenableAttackButton());                 // Inicia uma coroutine para reabilitar o botão de ataque após a animação
     }
 
     // Coroutine para reabilitar o botão de ataque após o término da animação
@@ -158,9 +173,28 @@ public class MovimentPlayer : MonoBehaviour
         // Espera até que a animação de ataque termine
         yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
 
-        attackButton.interactable = true;                      // Reabilita o botão de Ataque
-        jumpButton.interactable = true;                        // Reabilita o botão de Pulo
-                
-        isAttacking = false;                                   // Sinaliza que o Player terminou o ataque
+        attackButton.interactable = true;                       // Reabilita o botão de Ataque
+        jumpButton.interactable = true;                         // Reabilita o botão de Pulo
+
+        isAttacking = false;                                    // Sinaliza que o Player terminou o ataque
+        swordCollider.enabled = false;                          // Desabilita o collider da espada
+    }
+
+    public int GetSwordDamage()
+    {
+        return swordDamage;                                     // Retorna o dano causado pela espada
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        {
+            EnemyMoviment enemy = other.GetComponent<EnemyMoviment>();
+            if (enemy != null)
+            {
+                int damage = GetSwordDamage();                // Obtém o valor do dano da espada
+                enemy.TakeDamage(damage);                     // Causa dano ao inimigo
+            }
+        }
     }
 }

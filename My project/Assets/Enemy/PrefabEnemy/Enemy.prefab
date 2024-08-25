@@ -698,6 +698,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2cbd9cf77b8f59c41b8675a4b4883e89,
+        type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 1082271958561512970, guid: 2cbd9cf77b8f59c41b8675a4b4883e89,
         type: 3}
       propertyPath: m_Layer
@@ -1324,12 +1329,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31b0f2c73c0a0f141beb52ebe595be2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  HP: 100
+  maxHP: 100
+  healthBar: {fileID: 8759782753583129210}
   dialog:
     lines:
     - The Axe is mine.
     - Take it from me. HAHAHA!
-  healthBar: {fileID: 8759782753583129210}
-  damageAmount: 10
 --- !u!4 &4147079229324291453 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2cbd9cf77b8f59c41b8675a4b4883e89,
