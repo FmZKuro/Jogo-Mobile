@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
     public Image healthImage;                               // Referência de imagem que representa a Vida do Player
+    public TextMeshProUGUI healthText;                      // Referência ao TextMeshPro para exibir o número de HP
     public float maxHealth = 100f;                          // Valor máximo de Vida do Player
 
     [SerializeField] private float currentHealth;           // Valor atual de Vida do Player
@@ -29,6 +31,12 @@ public class PlayerHealth : MonoBehaviour
 
         // Ajusta a escala da imagem da Vida de acordo com a proporção calculada
         healthImage.rectTransform.localScale = new Vector3(healthRatio, 1, 1);
+
+        // Atualiza o texto com a vida atual e máxima
+        if (healthText != null)
+        {
+            healthText.text = $"{currentHealth} / {maxHealth}";
+        }
     }
 
     public void TakeDamage(float damage)

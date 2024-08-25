@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,14 +10,20 @@ public class EnemyMoviment : MonoBehaviour, Interactable
     [SerializeField] private int HP = 100;                                  // Declara uma variável privada para representar a vida atual no editor
     [SerializeField] private int maxHP = 100;                               // Declara uma variável privada para representar a vida máxima no editor
 
+    [Header("Enemy Regeneration Settings")]
+    [SerializeField] private int regenerationAmount = 5;                    // Quantidade de vida que o inimigo irá regenerar a cada intervalo
+    [SerializeField] private int regenerationInterval = 5;                  // Intervalo de tempo (em segundos) entre as regenerações
+
     [Header("Enemy UI Settings")]
     [SerializeField] private Slider healthBar;                              // Declara uma variável para representar a barra de vida do enemy
+    [SerializeField] private TextMeshProUGUI healthText;                    // Referência ao TextMeshPro para exibir o número
 
     [Header("Enemy Dialog Settings")]
     [SerializeField] private Dialog dialog;                                 // Declara uma variável privada do tipo Dialog para acesso no editor
 
     private Animator animator;                                              // Declara uma variável privada para representar o componente Animator
     private bool isDead = false;                                            // Declara uma variável booleana para representar se o Enemy está morto
+    private Coroutine regenerationCoroutine;                                // Armazena a referência da coroutine de regeneração
 
     // Método para interagir com o Personagem
     public void Interact()
@@ -32,7 +39,14 @@ public class EnemyMoviment : MonoBehaviour, Interactable
     {
         healthBar.maxValue = maxHP;                                         // Define o valor máximo da barra de vida com base no HP máximo do Enemy
         healthBar.value = HP;                                               // Define o valor atual da barra de vida com base no HP atual do Enemy
+
+        if (healthText != null)
+        {
+            healthText.text = $" {HP} / {maxHP} ";
+        }
+
         animator = GetComponent<Animator>();                                // Obtém e armazena o componente Animator do Enemy
+        regenerationCoroutine = StartCoroutine(RegenerateHealth());         // Inicia a coroutine de regeneração de vida
     }
 
     // Update is called once per frame
@@ -40,6 +54,11 @@ public class EnemyMoviment : MonoBehaviour, Interactable
     {
         if (isDead) return;                                                 // Se estiver morto, não faça mais nada
         healthBar.value = HP;                                               // Atualiza o valor da barra de vida com o valor atual do HP
+
+        if (healthText != null)
+        {
+            healthText.text = $" {HP} / {maxHP} ";
+        }
 
         // Verifica se a tecla "Z" foi pressionada e se a caixa de diálogo não está ativa
         if (Input.GetKeyDown(KeyCode.Z) && !DialogManager.Instance.dialogBox.activeInHierarchy)
@@ -79,6 +98,11 @@ public class EnemyMoviment : MonoBehaviour, Interactable
 
         healthBar.value = HP;                                               // Atualiza o valor da barra de vida após o dano
 
+        if (healthText != null)
+        {
+            healthText.text = $" {HP} / {maxHP} ";
+        }
+
         if (animator != null)                                               // Se o componente Animator estiver presente, ativa a animação de dano
         {
             animator.SetTrigger("EnemyHit");
@@ -98,6 +122,34 @@ public class EnemyMoviment : MonoBehaviour, Interactable
         if (animator != null)                                               // Se o componente Animator estiver presente, ativa a animação de morte
         {
             animator.SetTrigger("EnemyDeath");
+        }
+
+        if (regenerationCoroutine != null)                                  // Se a coroutine de regeneração estiver rodando, pare-a
+        {
+            StopCoroutine(regenerationCoroutine);
+        }
+    }
+
+    private IEnumerator RegenerateHealth()
+    {
+        while (!isDead)
+        {
+            yield return new WaitForSeconds(regenerationInterval);          // Aguarda o intervalo de tempo definido
+
+            if (HP < maxHP)                                                  // Verifica se o HP é menor que o máximo
+            {
+                HP += regenerationAmount;                                    // Regenera a vida do inimigo
+                if (HP > maxHP)                                              // Garante que o HP não exceda o valor máximo
+                {
+                    HP = maxHP;
+                }
+                healthBar.value = HP;                                        // Atualiza a barra de vida com o novo valor de HP
+            }
+
+            if (healthText != null)
+            {
+                healthText.text = $" {HP} / {maxHP} ";
+            }
         }
     }
 }
