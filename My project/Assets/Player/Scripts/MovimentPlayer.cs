@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class MovimentPlayer : MonoBehaviour
 {
     [Header("Player Movement Settings")]
-    [SerializeField] private float velocity = 4;                // Velocidade de movimento
+    [SerializeField] private float velocity = 5;                // Velocidade de movimento
     [SerializeField] private float jumpForce = 1f;              // Força do pulo
     [SerializeField] private float gravity = -20f;              // Gravidade aplicada ao Player
 
@@ -25,14 +25,20 @@ public class MovimentPlayer : MonoBehaviour
     [SerializeField] private int swordDamage = 10;              // Dano causado pela espada
     private BoxCollider swordCollider;                          // Referência ao Box Collider da espada
 
+    [Header("Audio Settings")]
+    [SerializeField] private AudioClip walkSound;               // Som de caminhar
+    [SerializeField] private AudioClip jumpSound;               // Som de pulo
+
     private Vector2 playerInput;                                // Entrada de movimento do Player
+    private Vector3 velocityJump;                               // Velocidade vertical do Jump
     private CharacterController characterController;            // Componente de controle do Player
     private Transform playerCam;                                // Transform da câmera do Player
     private Animator animator;                                  // Componente de Animação do Player
-    private Vector3 velocityJump;                               // Velocidade vertical do Jump
+    private AudioSource audioSource;                            // Componente de Áudio para tocar sons
     private bool isGrounded;                                    // Flag para verificar se o Player está no chão
     private bool isAttacking = false;                           // Flag para verificar se o Player está atacando
-
+    private bool isDead = false;                                // Flag para verificar se o Player está morto
+    [SerializeField] public GameObject player;
 
     private void Awake()
     {
@@ -41,6 +47,7 @@ public class MovimentPlayer : MonoBehaviour
         animator = GetComponent<Animator>();
         playerCam = Camera.main.transform;
         swordCollider = sword.GetComponent<BoxCollider>();
+        audioSource = GetComponent<AudioSource>();
 
         // Adiciona os método de Jump e Ataque aos botões
         jumpButton.onClick.AddListener(TryJump);
@@ -67,33 +74,54 @@ public class MovimentPlayer : MonoBehaviour
         // Verifica se o Player está no chão
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
         animator.SetBool("isGrounded", isGrounded);
-
-        // Reseta a velocidade vertical se estiver no chão e a velocidade vertical for negativa
-        if (isGrounded && velocityJump.y < 0)
+                
+        if (isDead)                                             // Se o Player está morto, impede movimentos, ataques e pulo
+        {
+            playerInput = Vector2.zero;
+            return;                                             // Impede outras ações como pulo e ataque
+        }
+                
+        if (isGrounded && velocityJump.y < 0)                   // Reseta a velocidade vertical se estiver no chão e a velocidade vertical for negativa
         {
             velocityJump.y = -2f;
             animator.SetBool("isJumping", false);
-
-            // Reabilita o botão de pulo se o Player não estiver atacando
-            if (!isAttacking)
+                        
+            if (!isAttacking)                                   // Reabilita o botão de pulo se o Player não estiver atacando
             {
                 jumpButton.interactable = true;
             }
         }
 
-        // Rotaciona o Player de acordo com a entrada do Player
-        RotatePlayer();
+        // Verifica se há entrada de movimento do jogador (não é zero), se o jogador está no chão e se o áudio atual não está tocando
+        if (playerInput != Vector2.zero && isGrounded && !audioSource.isPlaying)
+        {
+            PlaySound(walkSound);                               // Se todas as condições forem verdadeiras, toca o som de caminhada
+        }
+                
+        RotatePlayer();                                         // Rotaciona o Player de acordo com a entrada do Player
 
         // Movimenta o Player usando o CharacterController
         Vector3 move = transform.forward * playerInput.magnitude * velocity * Time.deltaTime;
-        characterController.Move(move);
+        characterController.Move(move);        
 
         // Aplica gravidade ao Player
         velocityJump.y += gravity * Time.deltaTime;
         characterController.Move(velocityJump * Time.deltaTime);
+        
+        animator.SetBool("Walk", playerInput != Vector2.zero);  // Define a animação de caminhar
+    }
 
-        // Define a animação de caminhar
-        animator.SetBool("Walk", playerInput != Vector2.zero);
+    public void SetIsDead(bool dead)
+    {
+        isDead = dead;
+
+        if (isDead)
+        {
+            playerInput = Vector2.zero;                         // Impede movimento após a morte
+            attackButton.interactable = false;                  // Desabilita o botão de ataque
+            jumpButton.interactable = false;                    // Desabilita o botão de pulo
+            swordCollider.enabled = false;                      // Desabilita o collider da espada
+        }
     }
 
     // Método para rotacionar o Player de acordo com a direção de entrada
@@ -124,18 +152,17 @@ public class MovimentPlayer : MonoBehaviour
 
     // Método chamado ao pressionar o botão de Jump
     private void Jump()
-    {
-        // Se o Player está no chão, aplica a força de pulo
-        velocityJump.y = Mathf.Sqrt(jumpForce * -2f * gravity);
+    {        
+        velocityJump.y = Mathf.Sqrt(jumpForce * -2f * gravity); // Se o Player está no chão, aplica a força de pulo
         animator.SetBool("isJumping", true);                    // Define a animação de Pulo                
-        jumpButton.interactable = false;                        // Desabilita o botão de pulo após o pulo        
+        jumpButton.interactable = false;                        // Desabilita o botão de pulo após o pulo
+        PlaySound(jumpSound);                                   // Toca o som de pulo                                              
         StartCoroutine(ReenableJumpButton());                   // Inicia uma coroutine para reabilitar o botão de pulo após tocar o chão
     }
 
     private IEnumerator ReenableJumpButton()
-    {
-        // Espera até que o Player toque o chão novamente
-        while (!isGrounded)
+    {        
+        while (!isGrounded)                                     // Espera até que o Player toque o chão novamente
         {
             yield return null;
         }
@@ -159,7 +186,7 @@ public class MovimentPlayer : MonoBehaviour
         animator.SetTrigger("Attack");                          // Define o trigger de atacar no animator
 
         attackButton.interactable = false;                      // Desabilita o botão de Ataque
-        jumpButton.interactable = false;                        // Desabilita o botão de  Pulo
+        jumpButton.interactable = false;                        // Desabilita o botão de Pulo
 
         isAttacking = true;                                     // Sinaliza que o Player está atacando
         swordCollider.enabled = true;                           // Habilita o collider da espada
@@ -187,14 +214,25 @@ public class MovimentPlayer : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        // Verifica se o GameObject com o qual entrou em contato está no Layer "Enemy"
+        if (other.CompareTag("Axe"))
         {
-            EnemyMoviment enemy = other.GetComponent<EnemyMoviment>();
+            EnemyMoviment enemy = other.GetComponentInParent<EnemyMoviment>();
             if (enemy != null)
             {
-                int damage = GetSwordDamage();                // Obtém o valor do dano da espada
-                enemy.TakeDamage(damage);                     // Causa dano ao inimigo
+                int damage = enemy.GetAxeDamage();               // Obtém o valor do dano da espada
+                GetComponent<PlayerHealth>().TakeDamage(damage); // Causa dano ao inimigo
             }
+        }
+    }
+
+    // Método para tocar um som
+    private void PlaySound(AudioClip clip)
+    {
+        // Verifica se o áudio a ser reproduzido não é nulo
+        if (clip != null)
+        {        
+            audioSource.PlayOneShot(clip);                      // Toca o áudio especificado usando o AudioSource, reproduzindo-o apenas uma vez
         }
     }
 }

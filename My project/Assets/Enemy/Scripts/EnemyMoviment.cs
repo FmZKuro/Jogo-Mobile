@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.AI;
+using System.Security.Cryptography;
 
-public class EnemyMoviment : MonoBehaviour, Interactable
+public class EnemyMoviment : MonoBehaviour
 {
     [Header("Enemy Movement Settings")]
     [SerializeField] private int HP = 100;                                  // Declara uma variável privada para representar a vida atual no editor
@@ -14,16 +16,47 @@ public class EnemyMoviment : MonoBehaviour, Interactable
     [SerializeField] private int regenerationAmount = 5;                    // Quantidade de vida que o inimigo irá regenerar a cada intervalo
     [SerializeField] private int regenerationInterval = 5;                  // Intervalo de tempo (em segundos) entre as regenerações
 
+    [Header("Enemy Attack Settings")]
+    [SerializeField] private GameObject axe;                                // Referência ao GameObject do machado
+    [SerializeField] private BoxCollider axeCollider;                       // Referência ao BoxCollider do machado
+    [SerializeField] private int axeDamage = 10;                            // Dano do machado
+    [SerializeField] private float attackDistance = 2f;                     // Distância de ataque
+    [SerializeField] private float attackCooldown = 2f;                     // Tempo de cooldown entre ataques
+
     [Header("Enemy UI Settings")]
     [SerializeField] private Slider healthBar;                              // Declara uma variável para representar a barra de vida do enemy
     [SerializeField] private TextMeshProUGUI healthText;                    // Referência ao TextMeshPro para exibir o número
 
+    [Header("Enemy Audio Settings")]
+    [SerializeField] private AudioClip attackSound;                         // Som do ataque
+    [SerializeField] private AudioClip damageSound;                         // Som de dano
+    [SerializeField] private AudioClip deathSound;                          // Som de morte
+
+    [Header("Enemy Idle Settings")]
+    [SerializeField] private AudioClip idleSound;                           // Som de idle
+    [SerializeField] float idleSoundRange = 10f;                            // Distância minima para ouvir o som de idle
+
+   
+
     [Header("Enemy Dialog Settings")]
     [SerializeField] private Dialog dialog;                                 // Declara uma variável privada do tipo Dialog para acesso no editor
-
+    private Coroutine regenerationCoroutine;                                // Armazena a referência da coroutine de regeneração    
     private Animator animator;                                              // Declara uma variável privada para representar o componente Animator
-    private bool isDead = false;                                            // Declara uma variável booleana para representar se o Enemy está morto
-    private Coroutine regenerationCoroutine;                                // Armazena a referência da coroutine de regeneração
+    private AudioSource audioSource;                                        // Componente AudioSource para tocar os sons
+    public Transform player;                                                // obtêm o transform do Player
+    private bool isDead = false;                                            // Flag para verificar se o Enemy está morto
+    private bool isAttackOnCooldown = false;                                // Flag para verificar o cooldown do ataque
+    private bool alreadyAttacked = false;                                   // Flag para verificar se o Enemy ja atacou
+    private bool isPlayingIdleSound = false;                                // Flag para verificar se está executando o som de idle
+
+    private void Awake()
+    {
+        player = GameObject.Find("Player").transform;                       // Encontra e armazena a referência do jogador
+        animator = GetComponent<Animator>();                                // Obtém e armazena o componente Animator do Enemy
+        axeCollider.enabled = false;                                        // Ativa o BoxCollider do machado
+        audioSource = GetComponent<AudioSource>();                          // Inicializa o componente AudioSource
+    }
+
 
     // Método para interagir com o Personagem
     public void Interact()
@@ -37,92 +70,158 @@ public class EnemyMoviment : MonoBehaviour, Interactable
     // Start is called before the first frame update
     void Start()
     {
+        PlaySound(idleSound, true);                                         // Inicia o som de idle em loop
         healthBar.maxValue = maxHP;                                         // Define o valor máximo da barra de vida com base no HP máximo do Enemy
         healthBar.value = HP;                                               // Define o valor atual da barra de vida com base no HP atual do Enemy
 
         if (healthText != null)
         {
-            healthText.text = $" {HP} / {maxHP} ";
+            healthText.text = $" {HP} / {maxHP} ";                          // Atualiza o texto da barra de vida
         }
 
-        animator = GetComponent<Animator>();                                // Obtém e armazena o componente Animator do Enemy
-        regenerationCoroutine = StartCoroutine(RegenerateHealth());         // Inicia a coroutine de regeneração de vida
+        regenerationCoroutine = StartCoroutine(RegenerateHealth());         // Inicia a coroutine de regeneração de vida        
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (isDead) return;                                                 // Se estiver morto, não faça mais nada
-        healthBar.value = HP;                                               // Atualiza o valor da barra de vida com o valor atual do HP
+        if (isDead) return;                                                 // Se o Enemy está morto, não faz nada
 
-        if (healthText != null)
+        UpdateHealthUI();                                                   // Atualiza a UI da saúde
+        HandlePlayerProximity();                                            // Lida com a proximidade do Player
+
+        // Verifica a distância entre o Enemy e o Player
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+                
+        if (distanceToPlayer <= idleSoundRange)                             // Se a distância for menor que o alcance do som de idle e o som não está tocando, comece a tocar
         {
-            healthText.text = $" {HP} / {maxHP} ";
+            if (!isPlayingIdleSound)
+            {
+                PlaySound(idleSound, true);                                 // Começa a tocar o som de idle em loop
+            }
+        }
+        else
+        {
+            if (isPlayingIdleSound)
+            {
+                audioSource.Stop();                                         // Para o som de idle
+                isPlayingIdleSound = false;
+            }
         }
 
-        // Verifica se a tecla "Z" foi pressionada e se a caixa de diálogo não está ativa
+        // teste
         if (Input.GetKeyDown(KeyCode.Z) && !DialogManager.Instance.dialogBox.activeInHierarchy)
         {
-            StartCoroutine(DialogManager.Instance.ShowDialog(dialog));      // Inicia uma coroutine para mostrar o diálogo associado ao Enemy
+            StartCoroutine(DialogManager.Instance.ShowDialog(dialog));      // Inicia o diálogo se a tecla Z for pressionada
         }
 
-        DialogManager.Instance.HandleUpdate();                              // Chama o método HandleUpdate do DialogManager para atualizar o estado do diálogo
+        DialogManager.Instance.HandleUpdate();                              // Atualiza o diálogo, se necessário
+        // teste
+    }
+
+    private void HandlePlayerProximity()
+    {
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+        if (distanceToPlayer <= attackDistance)
+        {
+            if (!alreadyAttacked && !isAttackOnCooldown)
+            {
+                AttackPlayer();                                             // Ataca o Player se estiver próximo
+            }
+        }
+        else
+        {
+            animator.SetBool("EnemyRunning", false);                        // Parar animação de caminhada
+        }
+    }
+
+    private void AttackPlayer()
+    {
+        animator.SetTrigger("EnemyAttack");                                 // Aciona a animação de ataque
+        alreadyAttacked = true;                                             // Marca como já atacado
+        isAttackOnCooldown = true;                                          // Inicia o cooldown do ataque
+        axeCollider.enabled = true;
+
+        PlaySound(attackSound);                                             // Toca o som de ataque
+        Invoke(nameof(ResetAttack), 1f);                                    // Reseta o estado de ataque após um segundo
+        StartCoroutine(AttackCooldown());                                   // Inicia a coroutine de cooldown
+    }
+
+    private IEnumerator AttackCooldown()
+    {
+        yield return new WaitForSeconds(attackCooldown);                    // Aguarda o tempo de cooldown
+        isAttackOnCooldown = false;                                         // Reseta o estado de cooldown
+        alreadyAttacked = false;                                            // Permite novos ataques
+        axeCollider.enabled = false;
+    }
+
+    private void ResetAttack()
+    {
+        alreadyAttacked = false;                                            // Permite novos ataques
+        axeCollider.enabled = false;
+    }
+
+    public int GetAxeDamage()
+    {
+        return axeDamage;                                                   // Retorna o dano causado pelo machado
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (isDead) return;                                                 // Se estiver morto, ignora a colisão
+        if (isDead) return;                                                 // Se o Enemy está morto, não faz nada
 
-        // Verifica se o inimigo colidiu com o colisor da espada
+        // Verifica se o Enemy colidiu com o colisor da espada
         if (other.CompareTag("Sword"))
         {
-            // Obtém o dano da espada a partir do script do Player
             MovimentPlayer player = other.GetComponentInParent<MovimentPlayer>();
             if (player != null)
             {
-                int swordDamage = player.GetSwordDamage();                  // Obtém o valor do dano da espada
-                TakeDamage(swordDamage);                                    // Aplica dano ao inimigo com base no dano da espada
+                int swordDamage = player.GetSwordDamage();                  // Obtém o dano da espada do Player
+                TakeDamage(swordDamage);                                    // Aplica o dano ao Enemy
             }
         }
     }
 
     public void TakeDamage(int damage)
     {
-        if (isDead) return;                                                 // Se estiver morto, não faça mais nada
-        HP -= damage;                                                       // Reduz o HP do personagem com base na quantidade de dano recebido
+        if (isDead) return;                                                 // Se o Enemy está morto, não faz nada
 
-        if (HP < 0)                                                         // Garante que o HP não seja menor que zero
+        HP -= damage;
+        HP = Mathf.Clamp(HP, 0, maxHP);                                     // Garante que HP esteja dentro dos limites
+
+        UpdateHealthUI();                                                   // Atualiza a UI da saúde
+
+        if (animator != null)
         {
-            HP = 0;
+            animator.SetTrigger("EnemyHit");                                // Aciona a animação de dano
         }
 
-        healthBar.value = HP;                                               // Atualiza o valor da barra de vida após o dano
+        PlaySound(damageSound);                                             // Toca o som de dano
 
-        if (healthText != null)
+        if (HP <= 0)
         {
-            healthText.text = $" {HP} / {maxHP} ";
-        }
-
-        if (animator != null)                                               // Se o componente Animator estiver presente, ativa a animação de dano
-        {
-            animator.SetTrigger("EnemyHit");
-        }
-
-        if (HP <= 0)                                                        // Verifica se o HP do Enemy chegou a zero para determinar se ele deve morrer
-        {
-            Die();                                                          // Chama o método Die para tratar a morte do Enemy
+            Die();                                                          // Se HP é 0 ou menos, chama o método Die()
         }
     }
 
     private void Die()
     {
         if (isDead) return;                                                 // Se já estiver morto, não faz nada
-        isDead = true;                                                      // Marca o inimigo como morto
+        isDead = true;                                                      // Marca o Enemy como morto
 
         if (animator != null)                                               // Se o componente Animator estiver presente, ativa a animação de morte
         {
             animator.SetTrigger("EnemyDeath");
         }
+
+        if (isPlayingIdleSound)
+        {
+            audioSource.Stop();                                             // Para o som de idle
+            isPlayingIdleSound = false;
+        }
+
+        PlaySound(deathSound);                                              // Toca o som de morte
 
         if (regenerationCoroutine != null)                                  // Se a coroutine de regeneração estiver rodando, pare-a
         {
@@ -134,21 +233,47 @@ public class EnemyMoviment : MonoBehaviour, Interactable
     {
         while (!isDead)
         {
-            yield return new WaitForSeconds(regenerationInterval);          // Aguarda o intervalo de tempo definido
+            yield return new WaitForSeconds(regenerationInterval);
 
-            if (HP < maxHP)                                                  // Verifica se o HP é menor que o máximo
+            if (HP < maxHP)
             {
-                HP += regenerationAmount;                                    // Regenera a vida do inimigo
-                if (HP > maxHP)                                              // Garante que o HP não exceda o valor máximo
-                {
-                    HP = maxHP;
-                }
-                healthBar.value = HP;                                        // Atualiza a barra de vida com o novo valor de HP
+                HP += regenerationAmount;                                   // Regenera a saúde
+                HP = Mathf.Clamp(HP, 0, maxHP);                             // Garante que HP esteja dentro dos limites
+                UpdateHealthUI();                                           // Atualiza a UI da saúde
             }
+        }
+    }
 
-            if (healthText != null)
+    private void UpdateHealthUI()
+    {
+        if (healthBar != null)
+        {
+            healthBar.value = HP;                                           // Atualiza o valor da barra de vida
+        }
+
+        if (healthText != null)
+        {
+            healthText.text = $"{HP} / {maxHP}";                            // Atualiza o texto da barra de vida
+        }
+    }
+
+    private void PlaySound(AudioClip clip, bool loop = false)
+    {
+        if (clip != null && audioSource != null)
+        {
+            if (loop)
             {
-                healthText.text = $" {HP} / {maxHP} ";
+                if (!isPlayingIdleSound)                                    // Verifica se o som de idle já está tocando
+                {
+                    audioSource.clip = clip;
+                    audioSource.loop = true;
+                    audioSource.Play();
+                    isPlayingIdleSound = true;
+                }
+            }
+            else
+            {
+                audioSource.PlayOneShot(clip);
             }
         }
     }
