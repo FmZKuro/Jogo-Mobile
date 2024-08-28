@@ -385,7 +385,6 @@
 "Assets/Scripts/DialogBox/DialogManager.cs"
 "Assets/Scripts/DialogBox/Interactable.cs"
 "Assets/Teste/Entradas.cs"
-"Assets/Teste/Movimento.cs"
 "Assets/TutorialInfo/Scripts/Readme.cs"
 -langversion:9.0
 

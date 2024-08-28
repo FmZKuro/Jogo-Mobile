@@ -13,13 +13,13 @@ public class EnemyMoviment : MonoBehaviour
     [SerializeField] private int maxHP = 100;                               // Declara uma variável privada para representar a vida máxima no editor
 
     [Header("Enemy Regeneration Settings")]
-    [SerializeField] private int regenerationAmount = 5;                    // Quantidade de vida que o inimigo irá regenerar a cada intervalo
+    [SerializeField] private int regenerationAmount = 2;                    // Quantidade de vida que o inimigo irá regenerar a cada intervalo
     [SerializeField] private int regenerationInterval = 5;                  // Intervalo de tempo (em segundos) entre as regenerações
 
     [Header("Enemy Attack Settings")]
     [SerializeField] private GameObject axe;                                // Referência ao GameObject do machado
     [SerializeField] private BoxCollider axeCollider;                       // Referência ao BoxCollider do machado
-    [SerializeField] private int axeDamage = 10;                            // Dano do machado
+    [SerializeField] private int axeDamage = 4;                             // Dano do machado
     [SerializeField] private float attackDistance = 2f;                     // Distância de ataque
     [SerializeField] private float attackCooldown = 2f;                     // Tempo de cooldown entre ataques
 
@@ -34,12 +34,12 @@ public class EnemyMoviment : MonoBehaviour
 
     [Header("Enemy Idle Settings")]
     [SerializeField] private AudioClip idleSound;                           // Som de idle
-    [SerializeField] float idleSoundRange = 10f;                            // Distância minima para ouvir o som de idle
-
-   
+    [SerializeField] float idleSoundRange = 10f;                            // Distância minima para ouvir o som de idle   
 
     [Header("Enemy Dialog Settings")]
     [SerializeField] private Dialog dialog;                                 // Declara uma variável privada do tipo Dialog para acesso no editor
+
+    private PlayerHealth playerHealth;                                      // Referência ao script de saúde do jogador
     private Coroutine regenerationCoroutine;                                // Armazena a referência da coroutine de regeneração    
     private Animator animator;                                              // Declara uma variável privada para representar o componente Animator
     private AudioSource audioSource;                                        // Componente AudioSource para tocar os sons
@@ -53,8 +53,9 @@ public class EnemyMoviment : MonoBehaviour
     {
         player = GameObject.Find("Player").transform;                       // Encontra e armazena a referência do jogador
         animator = GetComponent<Animator>();                                // Obtém e armazena o componente Animator do Enemy
-        axeCollider.enabled = false;                                        // Ativa o BoxCollider do machado
         audioSource = GetComponent<AudioSource>();                          // Inicializa o componente AudioSource
+        playerHealth = player.GetComponent<PlayerHealth>();                 // Encontre o componente PlayerHealth do jogador
+        axeCollider.enabled = false;                                        // Ativa o BoxCollider do machado
     }
 
 
@@ -92,7 +93,7 @@ public class EnemyMoviment : MonoBehaviour
 
         // Verifica a distância entre o Enemy e o Player
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-                
+
         if (distanceToPlayer <= idleSoundRange)                             // Se a distância for menor que o alcance do som de idle e o som não está tocando, comece a tocar
         {
             if (!isPlayingIdleSound)
@@ -136,15 +137,30 @@ public class EnemyMoviment : MonoBehaviour
         }
     }
 
+    // Método chamado pelo evento da animação para ativar o collider do machado
+    public void EnableAxeCollider()
+    {
+        axeCollider.enabled = true;
+    }
+
+    // Método chamado pelo evento da animação para desativar o collider do machado
+    public void DisableAxeCollider()
+    {
+        axeCollider.enabled = false;
+    }
+
     private void AttackPlayer()
     {
+        if (playerHealth != null && playerHealth.isDead)                    // Verificar se o Player está morto
+        {
+            return;
+        }
+
         animator.SetTrigger("EnemyAttack");                                 // Aciona a animação de ataque
         alreadyAttacked = true;                                             // Marca como já atacado
         isAttackOnCooldown = true;                                          // Inicia o cooldown do ataque
-        axeCollider.enabled = true;
 
         PlaySound(attackSound);                                             // Toca o som de ataque
-        Invoke(nameof(ResetAttack), 1f);                                    // Reseta o estado de ataque após um segundo
         StartCoroutine(AttackCooldown());                                   // Inicia a coroutine de cooldown
     }
 
@@ -153,13 +169,6 @@ public class EnemyMoviment : MonoBehaviour
         yield return new WaitForSeconds(attackCooldown);                    // Aguarda o tempo de cooldown
         isAttackOnCooldown = false;                                         // Reseta o estado de cooldown
         alreadyAttacked = false;                                            // Permite novos ataques
-        axeCollider.enabled = false;
-    }
-
-    private void ResetAttack()
-    {
-        alreadyAttacked = false;                                            // Permite novos ataques
-        axeCollider.enabled = false;
     }
 
     public int GetAxeDamage()
@@ -266,14 +275,14 @@ public class EnemyMoviment : MonoBehaviour
                 if (!isPlayingIdleSound)                                    // Verifica se o som de idle já está tocando
                 {
                     audioSource.clip = clip;
-                    audioSource.loop = true;
-                    audioSource.Play();
-                    isPlayingIdleSound = true;
+                    audioSource.loop = true;                                // Configura o áudio para tocar em loop
+                    audioSource.Play();                                     // Começa a tocar o som
+                    isPlayingIdleSound = true;                              // Marca o som de idle como ativo
                 }
             }
             else
             {
-                audioSource.PlayOneShot(clip);
+                audioSource.PlayOneShot(clip);                              // Toca o som uma vez, sem loop
             }
         }
     }

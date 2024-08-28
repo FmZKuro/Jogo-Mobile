@@ -6030,7 +6030,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 87
   sword: {fileID: 2568088213924199208}
-  swordDamage: 10
+  swordDamage: 8
   walkSound: {fileID: 8300000, guid: c12cd0e7e90e69a4eac424dae46b1671, type: 3}
   jumpSound: {fileID: 8300000, guid: 9cb165d9d8db64a4dacb287416d7d1c0, type: 3}
 --- !u!114 &2600601486477759893
@@ -6051,6 +6051,7 @@ MonoBehaviour:
   currentHealth: 0
   deathSound: {fileID: 8300000, guid: f1cb77f438c791c4d8a3b6ce45abdb18, type: 3}
   damageSound: {fileID: 8300000, guid: 570850028774931438d03b2afd0657a0, type: 3}
+  isDead: 0
 --- !u!1 &2790307340577351302
 GameObject:
   m_ObjectHideFlags: 0

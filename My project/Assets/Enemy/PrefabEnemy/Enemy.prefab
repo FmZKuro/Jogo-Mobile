@@ -1517,16 +1517,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HP: 100
   maxHP: 100
-  regenerationAmount: 5
+  regenerationAmount: 2
   regenerationInterval: 5
   axe: {fileID: 573913407373609857}
   axeCollider: {fileID: 1625267332208880344}
-  axeDamage: 10
+  axeDamage: 4
   attackDistance: 2
-  attackCooldown: 6
+  attackCooldown: 7
   healthBar: {fileID: 8759782753583129210}
   healthText: {fileID: 1136639234353105869}
-  attackSound: {fileID: 8300000, guid: cdc947a8f8ef6174f87841ddb5f5aa38, type: 3}
+  attackSound: {fileID: 8300000, guid: 6fc1961da70d0224e8d2828adfc61530, type: 3}
   damageSound: {fileID: 8300000, guid: 1dd3aa2eee01152478457d421528169b, type: 3}
   deathSound: {fileID: 8300000, guid: 1e668a45d70984843b027e4c39aed7b5, type: 3}
   idleSound: {fileID: 8300000, guid: 218e63146f674e246b91c531b8808604, type: 3}
