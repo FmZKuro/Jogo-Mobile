@@ -11,6 +11,10 @@ public class EnemyMoviment : MonoBehaviour
     [Header("Enemy Movement Settings")]
     [SerializeField] private int HP = 100;                                  // Declara uma variável privada para representar a vida atual no editor
     [SerializeField] private int maxHP = 100;                               // Declara uma variável privada para representar a vida máxima no editor
+    [SerializeField] private float rotationSpeed = 5f;                      // Velocidade de rotação do Enemy
+    [SerializeField] private float rotationDistance = 5f;                   // Distância para iniciar rotação do Enemy
+    [SerializeField] private float moveSpeed = 3f;                          // Velocidade de movimento do Enemy
+    [SerializeField] private float moveDistance = 4f;                       // Distância para o Enemy mover em direção ao Player
 
     [Header("Enemy Regeneration Settings")]
     [SerializeField] private int regenerationAmount = 2;                    // Quantidade de vida que o inimigo irá regenerar a cada intervalo
@@ -39,6 +43,7 @@ public class EnemyMoviment : MonoBehaviour
     [Header("Enemy Dialog Settings")]
     [SerializeField] private Dialog dialog;                                 // Declara uma variável privada do tipo Dialog para acesso no editor
 
+    private CharacterController characterController;                        // Referência ao Character Controller do Enemy
     private PlayerHealth playerHealth;                                      // Referência ao script de saúde do jogador
     private Coroutine regenerationCoroutine;                                // Armazena a referência da coroutine de regeneração    
     private Animator animator;                                              // Declara uma variável privada para representar o componente Animator
@@ -56,6 +61,7 @@ public class EnemyMoviment : MonoBehaviour
         audioSource = GetComponent<AudioSource>();                          // Inicializa o componente AudioSource
         playerHealth = player.GetComponent<PlayerHealth>();                 // Encontre o componente PlayerHealth do jogador
         axeCollider.enabled = false;                                        // Ativa o BoxCollider do machado
+        characterController = GetComponent<CharacterController>();          // Obtém o CharacterController do Enemy
     }
 
 
@@ -124,6 +130,20 @@ public class EnemyMoviment : MonoBehaviour
     {
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
+        if (distanceToPlayer <= rotationDistance)
+        {
+            RotateTowardsPlayer();
+        }
+
+        if (distanceToPlayer <= moveDistance && distanceToPlayer > attackDistance)
+        {
+            MoveTowardsPlayer();
+        }
+        else
+        {
+            animator.SetBool("EnemyRunning", false);
+        }
+
         if (distanceToPlayer <= attackDistance)
         {
             if (!alreadyAttacked && !isAttackOnCooldown)
@@ -131,10 +151,29 @@ public class EnemyMoviment : MonoBehaviour
                 AttackPlayer();                                             // Ataca o Player se estiver próximo
             }
         }
-        else
-        {
-            animator.SetBool("EnemyRunning", false);                        // Parar animação de caminhada
-        }
+    }
+
+    private void RotateTowardsPlayer()
+    {
+        // Calcula a direção do Player
+        Vector3 direction = (player.position - transform.position).normalized;
+        direction.y = 0;                                                    // Impede rotação no eixo Y para que o Enemy não incline
+
+        Quaternion lookRotation = Quaternion.LookRotation(direction);       // Calcula a rotação desejada em direção ao Player
+
+        // Interpola suavemente para a rotação desejada
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
+    }
+
+    private void MoveTowardsPlayer()
+    {
+        // Calcula a direção do Player
+        Vector3 direction = (player.position - transform.position).normalized;
+
+        Vector3 move = direction * moveSpeed * Time.deltaTime;              // Move o Enemy em direção ao Player usando o CharacterController
+        move.y += Physics.gravity.y * Time.deltaTime;                       // Adiciona a gravidade manualmente para garantir que o inimigo se mova corretamente ao longo do eixo Y
+        characterController.Move(move);                                     // Usa o CharacterController para mover o Enemy
+        animator.SetBool("EnemyRunning", true);
     }
 
     // Método chamado pelo evento da animação para ativar o collider do machado
@@ -285,5 +324,20 @@ public class EnemyMoviment : MonoBehaviour
                 audioSource.PlayOneShot(clip);                              // Toca o som uma vez, sem loop
             }
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        // Desenha o gizmo para a distância de rotação (cor amarela)
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, rotationDistance);
+
+        // Desenha o gizmo para a distância de movimento (cor azul)
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, moveDistance);
+
+        // Desenha o gizmo para a distância de ataque (cor vermelha)
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackDistance);
     }
 }

@@ -1517,6 +1517,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HP: 100
   maxHP: 100
+  rotationSpeed: 3
+  rotationDistance: 7.5
+  moveSpeed: 3
+  moveDistance: 6
   regenerationAmount: 2
   regenerationInterval: 5
   axe: {fileID: 573913407373609857}
