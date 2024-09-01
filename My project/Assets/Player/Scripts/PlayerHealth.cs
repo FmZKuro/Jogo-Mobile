@@ -23,64 +23,88 @@ public class PlayerHealth : MonoBehaviour
 
     void Start()
     {
-        currentHealth = maxHealth;                          // Define a Vida atual com máxima
-        animator = GetComponent<Animator>();                // Obtém o componente Animator
-        movimentPlayer = GetComponent<MovimentPlayer>();    // Obtém o script de movimento
-        audioSource = GetComponent<AudioSource>();          // Obtém o componente AudioSource
+        InitializeHealth();                                 // Inicializa a saúde do Player
+        InitializeComponents();                             // Inicializa os componentes necessários
         UpdateHealthBar();                                  // Atualiza a barra de Vida
     }
 
-    void UpdateHealthBar()
+    private void InitializeHealth()
     {
-        float healthRatio = currentHealth / maxHealth;      // Calcula a proporção de Vida atual em reação a Vida máxima
+        currentHealth = maxHealth;                          // Define a Vida atual para o valor máximo
+    }
 
-        // Ajusta a escala da imagem da Vida de acordo com a proporção calculada
+    private void InitializeComponents()
+    {
+        animator = GetComponent<Animator>();                // Obtém o componente Animator
+        audioSource = GetComponent<AudioSource>();          // Obtém o componente AudioSource
+        movimentPlayer = GetComponent<MovimentPlayer>();    // Obtém o script de movimento
+    }
+
+    private void UpdateHealthBar()
+    {
+        float healthRatio = currentHealth / maxHealth;              // Calcula a proporção de Vida atual em relação à Vida máxima
+
+        // Ajusta a escala da imagem da barra de Vida de acordo com a proporção calculada
         healthImage.rectTransform.localScale = new Vector3(healthRatio, 1, 1);
 
-        if (healthText != null)                             // Atualiza o texto com a vida atual e máxima
+        if (healthText != null)                                     // Se o texto de Vida está atribuído
         {
-            healthText.text = $"{currentHealth} / {maxHealth}";
+            healthText.text = $"{currentHealth} / {maxHealth}";     // Atualiza o texto com a Vida atual e máxima
         }
     }
 
     public void TakeDamage(int damage)
     {
-        if (isDead) return;                                 // Se o Player já estiver morto, não executa mais ações
+        if (isDead) return;                                             // Se o Player já estiver morto, ignora o dano
 
-        currentHealth -= damage;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Garante que a saúde não fique abaixo de zero
+        currentHealth -= damage;                                        // Reduz a Vida atual pelo valor do dano
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);       // Garante que a Vida não seja menor que zero
 
-        UpdateHealthBar();                                  // Atualiza a barra de saúde
+        UpdateHealthBar();                                              // Atualiza a barra de Vida após o dano
 
-        if (damageSound != null)                            // Toca o som de dano se não estiver morto e o som estiver atribuído
+        PlayDamageSound();                                              // Toca o som de dano
+
+        if (currentHealth <= 0)                                         // Verifica se o Player está morto
         {
-            audioSource.PlayOneShot(damageSound);
-        }
-
-        if (currentHealth <= 0)
-        {
-            Die();                                          // Executa o método de morte
+            Die();                                                      // Executa o método de morte
         }
         else
         {
-            movimentPlayer.enabled = false;                 // Desabilita o movimento
-            animator.SetTrigger("TakeHit");                 // Aciona a animação de dano        
-            StartCoroutine(EnableMovimentAfterDamage());    // Reabilita o movimento após um curto período
+            TriggerDamageAnimation();                                   // Aciona a animação de dano
+            StartCoroutine(EnableMovementAfterDamage());                // Reabilita o movimento após um curto período
         }
+    }
+
+    private void PlayDamageSound()
+    {
+        if (damageSound != null && !isDead)                 // Toca o som de dano se estiver atribuído e o Player não estiver morto
+        {
+            audioSource.PlayOneShot(damageSound);           // Reproduz o som de dano
+        }
+    }
+
+    private void TriggerDamageAnimation()
+    {
+        movimentPlayer.enabled = false;                     // Desabilita o movimento durante a animação de dano
+        animator.SetTrigger("TakeHit");                     // Aciona a animação de dano
     }
 
     private void Die()
     {
-        isDead = true;                                      // Define o estado de morto
-        animator.SetTrigger("Die");                         // Aciona a animação de morte como um trigger
-        movimentPlayer.SetIsDead(true);                     // Desabilita o movimento
+        isDead = true;                                      // Define o estado de morto do Player
+        animator.SetTrigger("Die");                         // Aciona a animação de morte
+        movimentPlayer.SetIsDead(true);                     // Desabilita o movimento do Player
 
+        PlayDeathSound();                                   // Toca o som de morte
+        StartCoroutine(DisableAllSounds());                 // Desativa todos os sons após o som de morte ser tocado
+    }
+
+    private void PlayDeathSound()
+    {
         if (deathSound != null)                             // Verifica se o som de morte foi atribuído
         {
             audioSource.PlayOneShot(deathSound);            // Toca o som de morte
         }
-
-        StartCoroutine(DisableAllSounds());                 // Desabilita todos os sons após o som de morte ser tocado
     }
 
     private IEnumerator DisableAllSounds()
@@ -90,36 +114,15 @@ public class PlayerHealth : MonoBehaviour
             yield return new WaitForSeconds(deathSound.length);
         }
 
-        // Desativa o componente AudioSource para parar todos os sons
-        audioSource.Stop();
-        audioSource.enabled = false;
+        audioSource.Stop();                                 // Para todos os sons
+        audioSource.enabled = false;                        // Desativa o componente de áudio
     }
 
-    private IEnumerator EnableMovimentAfterDamage()
+    private IEnumerator EnableMovementAfterDamage()
     {
         // Espera até o final da animação de dano
         yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
 
         movimentPlayer.enabled = true;                      // Habilita o movimento do Player novamente
-    }
-
-    // Teste de cura
-    public void Heal(float amount)
-    {
-        if (isDead) return;                                 // Se o Player já estiver morto, não permite curar
-
-        currentHealth += amount;                            // Aumenta a Vida atual pelo valor da Cura e garante que não exceda a vida máxima
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
-        UpdateHealthBar();                                  // Atualiza a barra de Vida
-    }
-    // Fim teste de Cura
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            Heal(10);
-        }
     }
 }

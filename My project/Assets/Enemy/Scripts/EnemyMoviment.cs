@@ -53,6 +53,7 @@ public class EnemyMoviment : MonoBehaviour
     private bool isAttackOnCooldown = false;                                // Flag para verificar o cooldown do ataque
     private bool alreadyAttacked = false;                                   // Flag para verificar se o Enemy ja atacou
     private bool isPlayingIdleSound = false;                                // Flag para verificar se está executando o som de idle
+    private bool dialogShown = false;                                        // Flag para verificar se o diálogo já foi exibido
 
     private void Awake()
     {
@@ -87,6 +88,12 @@ public class EnemyMoviment : MonoBehaviour
         }
 
         regenerationCoroutine = StartCoroutine(RegenerateHealth());         // Inicia a coroutine de regeneração de vida        
+        DialogManager.Instance.OnCloseDialog += OnDialogClose;              // Conecta o evento de fechamento do diálogo
+    }
+
+    private void OnDialogClose()
+    {
+        dialogShown = true;                                                 // Garante que o diálogo não seja exibido novamente após ser fechado
     }
 
     // Update is called once per frame
@@ -116,14 +123,17 @@ public class EnemyMoviment : MonoBehaviour
             }
         }
 
-        // teste
-        if (Input.GetKeyDown(KeyCode.Z) && !DialogManager.Instance.dialogBox.activeInHierarchy)
+        // Teste para iniciar o diálogo apenas se o jogador estiver dentro do range de rotação
+        if ((Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began || Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0)) && !DialogManager.Instance.dialogBox.activeInHierarchy)
         {
-            StartCoroutine(DialogManager.Instance.ShowDialog(dialog));      // Inicia o diálogo se a tecla Z for pressionada
+            distanceToPlayer = Vector3.Distance(transform.position, player.position);
+            if (distanceToPlayer <= rotationDistance)                       // Verifica se o Player está dentro do range de rotação
+            {
+                StartCoroutine(DialogManager.Instance.ShowDialog(dialog));  // Inicia o diálogo
+            }
         }
 
         DialogManager.Instance.HandleUpdate();                              // Atualiza o diálogo, se necessário
-        // teste
     }
 
     private void HandlePlayerProximity()
@@ -133,6 +143,12 @@ public class EnemyMoviment : MonoBehaviour
         if (distanceToPlayer <= rotationDistance)
         {
             RotateTowardsPlayer();
+
+            if (!dialogShown)
+            {
+                StartCoroutine(DialogManager.Instance.ShowDialog(dialog));  // Inicia o diálogo quando o Player entra no range de rotação
+                dialogShown = true;                                         // Marca o diálogo como exibido para evitar reabertura
+            }
         }
 
         if (distanceToPlayer <= moveDistance && distanceToPlayer > attackDistance)

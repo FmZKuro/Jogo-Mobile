@@ -13,6 +13,11 @@ public class DialogManager : MonoBehaviour
     public event Action OnShowDialog;                                       // Evento que é acionado quando o diálogo é exibido
     public event Action OnCloseDialog;                                      // Evento que é acionado quando o diálogo é fechado
 
+    private Dialog dialog;                                                  // Referência ao diálogo atual que está sendo exibido
+    private int currentLine = 0;                                            // Índice da linha atual do diálogo que está sendo exibida
+    private bool isTyping;                                                  // Booleano que indica se o texto do diálogo está sendo digitado no momento
+    private bool dialogShown = false;                                       // Flag para controlar se o diálogo já foi exibido
+
     public static DialogManager Instance { get; private set; }              // Instância Static do DialogManager para garantir que exista apenas uma instância no jogo
 
     private void Awake()
@@ -27,15 +32,15 @@ public class DialogManager : MonoBehaviour
         }
     }
 
-    private Dialog dialog;                                                  // Referência ao diálogo atual que está sendo exibido
-    private int currentLine = 0;                                            // Índice da linha atual do diálogo que está sendo exibida
-    private bool isTyping;                                                  // Booleano que indica se o texto do diálogo está sendo digitado no momento
 
     public IEnumerator ShowDialog(Dialog dialog)                            // Coroutine para exibir o diálogo na tela
     {
-        yield return new WaitForEndOfFrame();                               // Aguarda até o final do frame para iniciar a exibição do diálogo
+        if (dialogShown) yield break;                                       // Se o diálogo já foi exibido, não faz nada
 
-        OnShowDialog?.Invoke();                                             // Aciona o evento OnShowDialog
+        dialogShown = true;
+        yield return new WaitForEndOfFrame();
+
+        OnShowDialog?.Invoke();
 
         this.dialog = dialog;                                               // Armazena o diálogo recebido como o diálogo atual
         dialogBox.SetActive(true);                                          // Ativa a caixa de diálogo
@@ -46,12 +51,23 @@ public class DialogManager : MonoBehaviour
     // Método que deve ser chamado a cada frame para lidar com a atualização do diálogo
     public void HandleUpdate()
     {
-        // Verifica se a tecla "Z" foi pressionada, se o texto não está sendo digitado no momento e se a caixa de diálogo está ativa
-        if (Input.GetKeyDown(KeyCode.Z) && !isTyping && dialogBox.activeInHierarchy)
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && !isTyping && dialogBox.activeInHierarchy)
+        {
+            AdvanceDialog();                                                // Avança para a próxima linha do diálogo
+        }
+
+
+
+        // Teste
+        // Verifica se o botão do mouse foi clicado
+        else if (Input.GetMouseButtonDown(0) && !isTyping && dialogBox.activeInHierarchy)
         {
             AdvanceDialog();                                                // Avança para a próxima linha do diálogo
         }
     }
+    // Teste
+
+
 
     // Método privado para avançar para a próxima linha do diálogo ou fechar o diálogo se todas as linhas tiverem sido exibidas
     private void AdvanceDialog()

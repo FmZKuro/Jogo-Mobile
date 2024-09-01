@@ -110,7 +110,7 @@ public class MenuMain : MonoBehaviour
         {
             LoadScene("Fase03");
         }
-        else;
+        else
         {
             LoadScene("Menu");
         }
