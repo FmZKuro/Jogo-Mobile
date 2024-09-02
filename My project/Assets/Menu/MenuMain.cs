@@ -12,6 +12,7 @@ public class MenuMain : MonoBehaviour
     [SerializeField] private GameObject menuInGame;
     [SerializeField] private GameObject setting;
     [SerializeField] private GameObject historia;
+    [SerializeField] private AudioSource musicaMenu;
 
     //Controle do caregamento de cenas
     private string scenaAtual;
@@ -124,4 +125,12 @@ public class MenuMain : MonoBehaviour
     {
         LoadScene(scenaAtual);
     }
+
+
+    //====== Audio Controller ====
+    public void soundSlider(float value)
+    {
+        musicaMenu.volume = value;
+    }
+
 }

@@ -376,6 +376,7 @@
 "Assets/Enemy/Scripts/EnemyMoviment.cs"
 "Assets/Enemy/Scripts/LookAtPlayer.cs"
 "Assets/Menu/MenuMain.cs"
+"Assets/Menu/NewBehaviourScript.cs"
 "Assets/Player/Scripts/DeltaTimeProcessor.cs"
 "Assets/Player/Scripts/InputEnters.cs"
 "Assets/Player/Scripts/MovimentPlayer.cs"
