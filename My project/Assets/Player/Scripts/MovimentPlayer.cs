@@ -81,6 +81,8 @@ public class MovimentPlayer : MonoBehaviour
         {
             HandlePlayerMovementAndActions();                          // Caso contrário, trata o movimento e as ações do Player
         }
+
+        DialogManager.Instance?.HandleUpdate();                        // Atualiza o estado do diálogo
     }
 
     private void HandlePlayerDeath()
@@ -260,6 +262,15 @@ public class MovimentPlayer : MonoBehaviour
             {
                 int damage = enemy.GetAxeDamage();                                  // Obtém o dano do machado do Enemy
                 GetComponent<PlayerHealth>().TakeDamage(damage);                    // Aplica o dano ao Player
+            }
+        }
+
+        else if (other.CompareTag("DialogTrigger"))                                 // Verifica se colidiu com um trigger de diálogo
+        {
+            DialogTrigger dialogTrigger = other.GetComponent<DialogTrigger>();
+            if (dialogTrigger != null)
+            {
+                StartCoroutine(DialogManager.Instance.ShowDialog(dialogTrigger.dialog)); // Mostra o diálogo
             }
         }
     }

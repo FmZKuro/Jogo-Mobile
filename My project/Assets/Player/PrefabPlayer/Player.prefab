@@ -5525,7 +5525,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &2198389949076485969
 Transform:
@@ -5630,7 +5630,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &2205662818904555791
 Transform:
@@ -5658,9 +5658,9 @@ Light:
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
-  m_Color: {r: 1, g: 0.7031335, b: 0.41176468, a: 1}
+  m_Color: {r: 0.9811321, g: 0.7585711, b: 0.45817015, a: 1}
   m_Intensity: 1
-  m_Range: 6
+  m_Range: 12
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
@@ -5811,7 +5811,7 @@ Transform:
   - {fileID: 7981761775983110215}
   - {fileID: 4035405225996567746}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &8707354236279276829
 Animator:
@@ -6049,6 +6049,7 @@ MonoBehaviour:
   healthText: {fileID: 0}
   maxHealth: 100
   currentHealth: 0
+  gameOverHP: {fileID: 0}
   deathSound: {fileID: 8300000, guid: f1cb77f438c791c4d8a3b6ce45abdb18, type: 3}
   damageSound: {fileID: 8300000, guid: 570850028774931438d03b2afd0657a0, type: 3}
   isDead: 0

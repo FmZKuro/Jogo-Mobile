@@ -51,26 +51,21 @@ public class DialogManager : MonoBehaviour
     // Método que deve ser chamado a cada frame para lidar com a atualização do diálogo
     public void HandleUpdate()
     {
-        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && !isTyping && dialogBox.activeInHierarchy)
+        if (dialogBox.activeInHierarchy && !isTyping)                                   // Verifica se a caixa de diálogo está ativa na hierarquia e se o texto não está sendo digitado
         {
-            AdvanceDialog();                                                // Avança para a próxima linha do diálogo
-        }
-
-
-
-        // Teste
-        // Verifica se o botão do mouse foi clicado
-        else if (Input.GetMouseButtonDown(0) && !isTyping && dialogBox.activeInHierarchy)
-        {
-            AdvanceDialog();                                                // Avança para a próxima linha do diálogo
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)    // Verifica se houve um toque na tela (para dispositivos móveis)
+            {
+                AdvanceDialog();                                                        // Avança para a próxima linha do diálogo
+            }
+            else if (Input.GetMouseButtonDown(0))                                       // Verifica se o botão do mouse foi clicado (para PC)
+            {
+                AdvanceDialog();                                                        // Avança para a próxima linha do diálogo
+            }
         }
     }
-    // Teste
-
-
 
     // Método privado para avançar para a próxima linha do diálogo ou fechar o diálogo se todas as linhas tiverem sido exibidas
-    private void AdvanceDialog()
+    public void AdvanceDialog()
     {
         if (currentLine < dialog.Lines.Count - 1)                           // Verifica se ainda há mais linhas para exibir
         {
@@ -90,6 +85,7 @@ public class DialogManager : MonoBehaviour
         StopAllCoroutines();                                                // Para todas as coroutines em execução
         currentLine = 0;                                                    // Reseta o índice da linha atual para zero
         dialogBox.SetActive(false);                                         // Desativa a caixa de diálogo
+        dialogShown = false;                                                // Reseta a flag de diálogo mostrado
         OnCloseDialog?.Invoke();                                            // Aciona o evento OnCloseDialog
     }
 
@@ -104,5 +100,10 @@ public class DialogManager : MonoBehaviour
             yield return new WaitForSeconds(1f / lettersPerSecond);         // Intervalo baseado na velocidade configurada
         }
         isTyping = false;                                                   // Marca que o texto terminou de ser digitado
+    }
+
+    public bool IsDialogActive()
+    {
+        return dialogBox.activeInHierarchy;                                 // Verifica se o GameObject da caixa de diálogo está ativo na hierarquia e retorna o resultado
     }
 }

@@ -40,17 +40,13 @@ public class MenuMain : MonoBehaviour
         menu.SetActive(false);
         setting.SetActive(false);
         historia.SetActive(true);
-    }
-
-   
+    }   
 
     public void Exit()
     {
         Application.Quit();
         Debug.Log("Exit - o jogo fechou");
     }
-
-   
 
     //pausar o jogo
     public void Pause()

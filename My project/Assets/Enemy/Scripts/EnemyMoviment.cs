@@ -40,9 +40,6 @@ public class EnemyMoviment : MonoBehaviour
     [SerializeField] private AudioClip idleSound;                           // Som de idle
     [SerializeField] float idleSoundRange = 10f;                            // Distância minima para ouvir o som de idle   
 
-    [Header("Enemy Dialog Settings")]
-    [SerializeField] private Dialog dialog;                                 // Declara uma variável privada do tipo Dialog para acesso no editor
-
     private CharacterController characterController;                        // Referência ao Character Controller do Enemy
     private PlayerHealth playerHealth;                                      // Referência ao script de saúde do jogador
     private Coroutine regenerationCoroutine;                                // Armazena a referência da coroutine de regeneração    
@@ -53,7 +50,7 @@ public class EnemyMoviment : MonoBehaviour
     private bool isAttackOnCooldown = false;                                // Flag para verificar o cooldown do ataque
     private bool alreadyAttacked = false;                                   // Flag para verificar se o Enemy ja atacou
     private bool isPlayingIdleSound = false;                                // Flag para verificar se está executando o som de idle
-    private bool dialogShown = false;                                        // Flag para verificar se o diálogo já foi exibido
+    private bool isAttacking = false;                                       // Flag para verificar se está atacando
 
     private void Awake()
     {
@@ -63,16 +60,6 @@ public class EnemyMoviment : MonoBehaviour
         playerHealth = player.GetComponent<PlayerHealth>();                 // Encontre o componente PlayerHealth do jogador
         axeCollider.enabled = false;                                        // Ativa o BoxCollider do machado
         characterController = GetComponent<CharacterController>();          // Obtém o CharacterController do Enemy
-    }
-
-
-    // Método para interagir com o Personagem
-    public void Interact()
-    {
-        if (!isDead)                                                        // Só pode interagir se não estiver morto
-        {
-            StartCoroutine(DialogManager.Instance.ShowDialog(dialog));      // Inicia uma coroutine para mostrar o diálogo associado ao Enemy
-        }
     }
 
     // Start is called before the first frame update
@@ -88,12 +75,6 @@ public class EnemyMoviment : MonoBehaviour
         }
 
         regenerationCoroutine = StartCoroutine(RegenerateHealth());         // Inicia a coroutine de regeneração de vida        
-        DialogManager.Instance.OnCloseDialog += OnDialogClose;              // Conecta o evento de fechamento do diálogo
-    }
-
-    private void OnDialogClose()
-    {
-        dialogShown = true;                                                 // Garante que o diálogo não seja exibido novamente após ser fechado
     }
 
     // Update is called once per frame
@@ -122,33 +103,20 @@ public class EnemyMoviment : MonoBehaviour
                 isPlayingIdleSound = false;
             }
         }
-
-        // Teste para iniciar o diálogo apenas se o jogador estiver dentro do range de rotação
-        if ((Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began || Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0)) && !DialogManager.Instance.dialogBox.activeInHierarchy)
-        {
-            distanceToPlayer = Vector3.Distance(transform.position, player.position);
-            if (distanceToPlayer <= rotationDistance)                       // Verifica se o Player está dentro do range de rotação
-            {
-                StartCoroutine(DialogManager.Instance.ShowDialog(dialog));  // Inicia o diálogo
-            }
-        }
-
-        DialogManager.Instance.HandleUpdate();                              // Atualiza o diálogo, se necessário
     }
 
     private void HandlePlayerProximity()
     {
+        if (isAttacking)                                                    // Se o Enemy está atacando, não faz nada
+        {
+            return;
+        }
+
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
         if (distanceToPlayer <= rotationDistance)
         {
             RotateTowardsPlayer();
-
-            if (!dialogShown)
-            {
-                StartCoroutine(DialogManager.Instance.ShowDialog(dialog));  // Inicia o diálogo quando o Player entra no range de rotação
-                dialogShown = true;                                         // Marca o diálogo como exibido para evitar reabertura
-            }
         }
 
         if (distanceToPlayer <= moveDistance && distanceToPlayer > attackDistance)
@@ -214,6 +182,7 @@ public class EnemyMoviment : MonoBehaviour
         animator.SetTrigger("EnemyAttack");                                 // Aciona a animação de ataque
         alreadyAttacked = true;                                             // Marca como já atacado
         isAttackOnCooldown = true;                                          // Inicia o cooldown do ataque
+        isAttacking = true;                                                 // Marca o Enemy como atacando
 
         PlaySound(attackSound);                                             // Toca o som de ataque
         StartCoroutine(AttackCooldown());                                   // Inicia a coroutine de cooldown
@@ -224,6 +193,7 @@ public class EnemyMoviment : MonoBehaviour
         yield return new WaitForSeconds(attackCooldown);                    // Aguarda o tempo de cooldown
         isAttackOnCooldown = false;                                         // Reseta o estado de cooldown
         alreadyAttacked = false;                                            // Permite novos ataques
+        isAttacking = false;                                                // Marca o Enemy como não atacando
     }
 
     public int GetAxeDamage()

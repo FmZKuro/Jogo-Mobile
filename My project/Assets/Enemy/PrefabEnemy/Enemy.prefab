@@ -279,12 +279,12 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 2cbd9cf77b8f59c41b8675a4b4883e89,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.29
+      value: -1.21
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2cbd9cf77b8f59c41b8675a4b4883e89,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 10.39
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2cbd9cf77b8f59c41b8675a4b4883e89,
         type: 3}
@@ -1535,10 +1535,6 @@ MonoBehaviour:
   deathSound: {fileID: 8300000, guid: 1e668a45d70984843b027e4c39aed7b5, type: 3}
   idleSound: {fileID: 8300000, guid: 218e63146f674e246b91c531b8808604, type: 3}
   idleSoundRange: 10
-  dialog:
-    lines:
-    - The Axe is mine.
-    - Take it from me. HAHAHA!
   player: {fileID: 0}
 --- !u!82 &4596040389079747881
 AudioSource:
