@@ -11,6 +11,8 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private TextMeshProUGUI healthText;    // Referência ao TextMeshPro para exibir o número de HP
     [SerializeField] private float maxHealth = 100f;        // Valor máximo de Vida do Player
     [SerializeField] private float currentHealth;           // Valor atual de Vida do Player
+    [SerializeField] private GameObject gameOverHP;
+
 
     [Header("Audio Settings")]
     public AudioClip deathSound;                            // Referência ao som de morte do Player
@@ -67,6 +69,8 @@ public class PlayerHealth : MonoBehaviour
         if (currentHealth <= 0)                                         // Verifica se o Player está morto
         {
             Die();                                                      // Executa o método de morte
+            
+
         }
         else
         {
@@ -96,7 +100,9 @@ public class PlayerHealth : MonoBehaviour
         movimentPlayer.SetIsDead(true);                     // Desabilita o movimento do Player
 
         PlayDeathSound();                                   // Toca o som de morte
-        StartCoroutine(DisableAllSounds());                 // Desativa todos os sons após o som de morte ser tocado
+
+        StartCoroutine(HandleDeathSequence());                 // Desativa todos os sons após o som de morte ser tocado
+
     }
 
     private void PlayDeathSound()
@@ -107,15 +113,17 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    private IEnumerator DisableAllSounds()
+    private IEnumerator HandleDeathSequence()
     {
+
         if (deathSound != null)                             // Espera até o final do som de morte
         {
             yield return new WaitForSeconds(deathSound.length);
-        }
+        }      
 
-        audioSource.Stop();                                 // Para todos os sons
-        audioSource.enabled = false;                        // Desativa o componente de áudio
+        yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+
+        gameOverHP.SetActive(true);
     }
 
     private IEnumerator EnableMovementAfterDamage()

@@ -10,6 +10,7 @@ public class Countdown : MonoBehaviour
     [SerializeField] float remainingTime;                                               // Tempo restante para a contagem regressiva
     [SerializeField] float blinkStartTime = 15f;                                        // Tempo, em segundos, em que o texto começará a piscar
     [SerializeField] float blinkFrequency = 0.5f;                                       // Frequência do piscar, em segundos (intervalo entre alternância de cores)
+    [SerializeField] private GameObject gameOverScreen;
 
     private bool isBlinking = false;                                                    // Variável para controlar se o piscar está ativo
     private float blinkTimer = 0f;                                                      // Temporizador usado para alternar as cores durante o piscar
@@ -30,7 +31,7 @@ public class Countdown : MonoBehaviour
         else if (remainingTime < 0)                                                     // Se o tempo restante for negativo (a contagem terminou)
         {
             remainingTime = 0;                                                          // Define o tempo restante como zero
-            // GameOver();
+            gameOverScreen.SetActive(true);
             countdownText.color = Color.red;                                            // Define a cor do texto para vermelho (indicando que o tempo acabou)
         }
                 

@@ -12,7 +12,6 @@ public class MenuMain : MonoBehaviour
     [SerializeField] private GameObject menuInGame;
     [SerializeField] private GameObject setting;
     [SerializeField] private GameObject historia;
-    [SerializeField] private GameObject gameOver;
 
     //Controle do caregamento de cenas
     private string scenaAtual;
@@ -42,10 +41,7 @@ public class MenuMain : MonoBehaviour
         historia.SetActive(true);
     }
 
-    public void GameOver()
-    {
-        gameOver.SetActive(true);
-    }
+   
 
     public void Exit()
     {
