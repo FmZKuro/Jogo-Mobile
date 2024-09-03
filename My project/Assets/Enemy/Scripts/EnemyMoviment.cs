@@ -52,6 +52,11 @@ public class EnemyMoviment : MonoBehaviour
     private bool isPlayingIdleSound = false;                                // Flag para verificar se está executando o som de idle
     private bool isAttacking = false;                                       // Flag para verificar se está atacando
 
+    [SerializeField] private GameObject vitoria;                                // Referência ao GameObject de vitoria
+    
+
+
+
     private void Awake()
     {
         player = GameObject.Find("Player").transform;                       // Encontra e armazena a referência do jogador
@@ -247,6 +252,8 @@ public class EnemyMoviment : MonoBehaviour
         if (animator != null)                                               // Se o componente Animator estiver presente, ativa a animação de morte
         {
             animator.SetTrigger("EnemyDeath");
+
+            vitoria.SetActive(true);
         }
 
         if (isPlayingIdleSound)

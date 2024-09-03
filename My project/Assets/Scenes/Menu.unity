@@ -530,14 +530,14 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Hist\xF3ria\r\nAstolfo, um corajoso an\xE3o minerador morador da cidade
-    Dustrag, esta\r\nencarregado de recuperar um martelo m\xE1gico roubado por Glub,
-    um goblin\r\nladr\xE3o. Este martelo \xE9 vital para a estabilidade das minas
-    an\xE3s. Glub, conhecido\r\npor sua ast\xFAcia, escapa atrav\xE9s dos t\xFAneis
-    das minas enquanto provoca Astolfo.\r\nDeterminado a salvar sua cidade, Astolfo
-    enfrenta desafios perseguindo Glub\r\npelas profundezas das minas de Dustrag.
-    O destino da cidade depende da\r\nhabilidade, determina\xE7\xE3o e agilidade
-    de Astolfo em recuperar o martelo antes\r\nque a montanha desmorone."
+  m_text: "Astolfo \xE9 um an\xE3o que trabalha nos t\xFAneis de minera\xE7\xE3o
+    na cidade Dustrag que \xE9 uma cidade esculpida dentro das rochas de uma montanha
+    antiga, os an\xF5es cavaram  muito fundo nas profundezas da montanha at\xE9 que
+    abriram uma passagem que conectou a cidade Dustrag com as tocas dos goblins agora
+    eles est\xE3o sendo roubado por essas ardilosas criaturas, Astolfo est\xE1 encarregado
+    de recuperar o martelo m\xE1gico roubado por Glub, um goblin ladr\xE3o. Este
+    martelo \xE9 vital para a estabilidade da montanha, se Astolfo n\xE3o conseguir
+    recuperar o martelo a tempo a montanha ira desmoronar.\r\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
@@ -564,15 +564,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 80
+  m_fontSizeBase: 80
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 16
-  m_VerticalAlignment: 512
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -1746,7 +1746,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: c333d2a3bd06d864ab0087009563fcda, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0
   m_Pitch: 1
   Loop: 1
   Mute: 0
